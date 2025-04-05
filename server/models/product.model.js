@@ -11,7 +11,7 @@ const productSchema = new mongoose.Schema({
     category: [
         {
             type: mongoose.Schema.ObjectId,
-            ref: "category"
+            ref: "productCategory"
         }
     ],
     subCategory: [
@@ -28,6 +28,10 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: null
     },
+    price: {
+        type: Number,
+        default: null
+    },
     discount: {
         type: Number,
         default: null
@@ -39,6 +43,10 @@ const productSchema = new mongoose.Schema({
     more_details: {
         type: Object,
         default: {}
+    },
+    reviews: {
+        type: Array,
+        default: []
     },
     public: {
         type: Boolean,
