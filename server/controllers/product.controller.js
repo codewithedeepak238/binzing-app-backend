@@ -4,19 +4,45 @@ import SubCategoryModel from "../models/subCategory.model.js";
 
 export async function createProduct(req, res) {
     try {
-        const { name, image, category, subCategory, unit, stock, price, discount, description, more_details } = req.body;
+        const {
+            name,
+            category,
+            subCategory,
+            unit,
+            stock,
+            price,
+            discount,
+            description,
+            more_details
+        } = req.body;
 
-        if (!name, !category, !unit, !stock, !price, !description, !more_details) {
+        if (!name || !category || !unit || !stock || !price || !description || !more_details) {
             return res.status(400).json({
-                message: "Provide recommended details",
+                message: "Provide all required fields",
                 error: true,
                 success: false
-            })
+            });
         }
 
+        const parsedCategory = Array.isArray(category) ? category : [category];
+        const parsedSubCategory = Array.isArray(subCategory) ? subCategory : [subCategory];
+
+        // Map image URLs from Cloudinary uploads
+        const imageUrls = req.files?.map(file => file.path) || [];
+
+
         const payload = {
-            name, image: [], category, subCategory, unit, stock, price, discount, description, more_details
-        }
+            name,
+            image: imageUrls,
+            category: parsedCategory,
+            subCategory: parsedSubCategory,
+            unit,
+            stock,
+            price,
+            discount,
+            description,
+            more_details
+        };
 
         const product = new ProductModel(payload);
         const save = await product.save();
@@ -50,7 +76,7 @@ export async function createCategory(req, res) {
             })
         }
 
-        const payload = {name, image};
+        const payload = { name, image };
         const category = new ProductCategoryModel(payload);
         const save = await category.save();
         return res.status(200).json({
@@ -81,7 +107,7 @@ export async function createSubCategory(req, res) {
             })
         }
 
-        const payload = {name, image, category};
+        const payload = { name, image, category };
         const subCategory = new SubCategoryModel(payload);
         const save = await subCategory.save();
         return res.status(200).json({
@@ -100,10 +126,10 @@ export async function createSubCategory(req, res) {
     }
 }
 
-export async function productList(req, res){
-    try{
+export async function productList(req, res) {
+    try {
         const products = await ProductModel.find();
-        if(!products){
+        if (!products) {
             return res.status(404).json({
                 message: "No Products Available",
                 error: true,
@@ -115,9 +141,9 @@ export async function productList(req, res){
             error: false,
             success: true,
             data: products
-        }) 
+        })
     }
-    catch(err){
+    catch (err) {
         return res.status(500).json({
             message: err.message || err,
             error: true,
@@ -126,11 +152,11 @@ export async function productList(req, res){
     }
 }
 
-export async function singleProductDetails(req, res){
-    try{
-        const {id} = req.params;
+export async function singleProductDetails(req, res) {
+    try {
+        const { id } = req.params;
         const product = await ProductModel.findById(id);
-        if(!product){
+        if (!product) {
             return res.status(404).json({
                 message: "This Product is Not Available",
                 error: true,
@@ -142,9 +168,9 @@ export async function singleProductDetails(req, res){
             error: false,
             success: true,
             data: product
-        }) 
+        })
     }
-    catch(err){
+    catch (err) {
         return res.status(500).json({
             message: err.message || err,
             error: true,
@@ -153,25 +179,25 @@ export async function singleProductDetails(req, res){
     }
 }
 
-export async function deleteProduct(req, res){
-    try{
-        const {id} = req.params;
+export async function deleteProduct(req, res) {
+    try {
+        const { id } = req.params;
         const product = await ProductModel.findById(id);
-        if(!product){
+        if (!product) {
             return res.status(404).json({
                 message: "This Product is Not Available",
                 error: true,
                 success: false
             })
         }
-        await ProductModel.deleteOne({_id:id});
+        await ProductModel.deleteOne({ _id: id });
         return res.status(200).json({
             message: "Product Removed Successfully.",
             error: false,
             success: true
-        }) 
+        })
     }
-    catch(err){
+    catch (err) {
         return res.status(500).json({
             message: err.message || err,
             error: true,
@@ -180,21 +206,21 @@ export async function deleteProduct(req, res){
     }
 }
 
-export async function updateProduct(req, res){
-    try{
-        const {id} = req.params;
+export async function updateProduct(req, res) {
+    try {
+        const { id } = req.params;
         const product = await ProductModel.findById(id);
-        if(!product){
+        if (!product) {
             return res.status(404).json({
                 message: "This Product is Not Available",
                 error: true,
                 success: false
             })
         }
-        const {name, image, unit, stock, price, discount, description, more_details} = req.body;
-        const updatedProduct = await ProductModel.findByIdAndUpdate(id, {name, image, unit, stock, price, discount, description, more_details}, {new: true});
+        const { name, image, unit, stock, price, discount, description, more_details } = req.body;
+        const updatedProduct = await ProductModel.findByIdAndUpdate(id, { name, image, unit, stock, price, discount, description, more_details }, { new: true });
 
-        if(!updatedProduct){
+        if (!updatedProduct) {
             return res.status(404).json({
                 message: "Error in updating product.",
                 error: true,
@@ -205,10 +231,10 @@ export async function updateProduct(req, res){
             message: "Product Updated Successfully.",
             error: false,
             success: true,
-            data:updatedProduct
-        }) 
+            data: updatedProduct
+        })
     }
-    catch(err){
+    catch (err) {
         return res.status(500).json({
             message: err.message || err,
             error: true,
@@ -217,15 +243,15 @@ export async function updateProduct(req, res){
     }
 }
 
-export async function searchProduct(req, res){
-    try{
+export async function searchProduct(req, res) {
+    try {
         const query = req.query.item;
-    
-        if(query!==null){
+
+        if (query !== null) {
             const searchList = await ProductModel.find({})
         }
     }
-    catch(err){
+    catch (err) {
         return res.status(500).json({
             message: err.message || err,
             error: true,

@@ -47,6 +47,103 @@ export async function addToCart(req, res) {
 
 }
 
+export async function removeCartItem(req, res) {
+    try {
+        const userId = req.userId;
+        const { productId } = req.body;
+        if (!productId) {
+            return res.status(400).json({ message: "Product ID is required." });
+        }
+        const isExist = await CartProductModel.findOne({ _id: productId, userId });
+        if (!isExist) {
+            return res.status(400).json({ message: "This product is not in cart." });
+        }
+
+        await CartProductModel.deleteOne({ _id: productId, userId });
+
+        return res.status(200).json({
+            message: "Product removed from cart"
+        })
+
+    }
+    catch (err) {
+        return res.status(500).json({
+            message: err.message || err,
+            error: true,
+            success: false
+        })
+    }
+}
+
+export async function incrementCartItem(req, res) {
+    try {
+        const userId = req.userId;
+        const {id} = req.params;
+
+        const product = await CartProductModel.findOne({_id:id, userId});
+        if(!product){
+            return res.status(400).json({ message: "Product not found in cart." });
+        }
+
+        product.quantity +=1;
+
+        await product.save();
+
+        return res.status(200).json({
+            message: "Product quantity increased."
+        })
+
+    }
+    catch (err) {
+        return res.status(500).json({
+            message: err.message || err,
+            error: true,
+            success: false
+        })
+    }
+}
+
+
+export async function decrementCartItem(req, res) {
+    try {
+        const userId = req.userId;
+        const {id} = req.params;
+
+        const product = await CartProductModel.findOne({_id:id, userId});
+        if(!product){
+            return res.status(400).json({ message: "Product not found in cart." });
+        }
+        if(product.quantity >1){
+            product.quantity -=1;
+            await product.save();
+            return res.status(200).json({
+                message: "Product quantity decreased."
+            })
+        }
+        
+        if(product.quantity===1){
+            await CartProductModel.deleteOne({ _id: id, userId });
+            return res.status(200).json({
+                message: "Product removed from cart."
+            })
+        }
+        
+        return res.status(400).json({
+            message: "Invalid product quantity",
+            error: true,
+            success: false
+        })
+
+    }
+    catch (err) {
+        return res.status(500).json({
+            message: err.message || err,
+            error: true,
+            success: false
+        })
+    }
+}
+
 export async function getCartItems(req, res) {
     try {
         const userId = req.userId;

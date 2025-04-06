@@ -43,7 +43,7 @@ export async function getAllAddress(req, res){
     try{
         const userId = req.userId;
 
-        const user = await UserModel.findOne(userId).populate("address_details");
+        const user = await UserModel.findOne({_id:userId}).populate("address_details");
 
         if(!user){
             return res.status(400).json({

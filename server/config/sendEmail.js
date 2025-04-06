@@ -1,26 +1,31 @@
-import {Resend} from "resend"
-import dotenv from "dotenv"
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 dotenv.config();
 
-const resend = new Resend(process.env.RESEND_API);
+const transporter = nodemailer.createTransport({
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  auth: {
+    user: process.env.BREVO_EMAIL,
+    pass: process.env.BREVO_SMTP_KEY
+  }
+});
 
-const sendEmail = async ({sendTo, subject, html})=>{
-  try{
-    const { data, error } = await resend.emails.send({
-      from: 'Blinkit <onboarding@resend.dev>',
+const sendEmail = async ({ sendTo, subject, html }) => {
+  try {
+    const info = await transporter.sendMail({
+      from: `"Blinkit" <${process.env.BREVO_EMAIL}>`, // must match verified sender
       to: sendTo,
-      subject: subject,
-      html: html,
+      subject,
+      html
     });
-    if (error) {
-      return console.error({ error });
-    }
-    return data;
-  }
-  catch(err){
-    console.error({ error });
 
+    console.log("Email sent:", info.messageId);
+    return info;
+  } catch (err) {
+    console.error("Email error:", err);
+    throw err;
   }
-}
+};
 
 export default sendEmail;

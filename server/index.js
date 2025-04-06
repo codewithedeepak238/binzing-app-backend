@@ -6,6 +6,7 @@ import connectToMongoDB from "./config/connection.js";
 import userRouter from "./routes/user.route.js";
 import productRouter from "./routes/product.route.js";
 import detailRouter from "./routes/userDetail.route.js";
+import orderRouter from "./routes/order.route.js"
 dotenv.config();
 
 const app = express();
@@ -33,6 +34,7 @@ app.get("/", (req, res)=>{
 app.use('/api/user', userRouter);
 app.use('/api/product', productRouter);
 app.use('/api/detail', detailRouter);
+app.use('/api/order', orderRouter);
 
 const PORT = 8000;
 
